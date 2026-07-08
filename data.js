@@ -43,6 +43,13 @@ const LEVEL_BACKGROUNDS = [
 ];
 const LEVEL_WORD_COUNTS = [3,5,7,9,11,13,15,15,15];
 const HIDDEN_WORDS_PER_LEVEL = 2;
+const BONUS_VIDEOS = [
+  "assets/bonus1.webm","assets/bonus2.webm","assets/bonus3.webm","assets/bonus4.webm"
+];
+
+const STORY_INTRO_VIDEO = "assets/story_intro.webm";
+const STORY_MID_VIDEO = "assets/story_mid.webm";
+const STORY_FINAL_VIDEO = "assets/story_final.webm";
 
 const IDLE_VIDEO = "assets/idle.webm";
 const ACIERTO_VIDEOS = [

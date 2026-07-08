@@ -296,6 +296,42 @@ function markHiddenWordFound(word){
   playSound('match');
   playAcierto();
   showBonusThenBanner(word);
+
+  if(hiddenWords.length && foundHidden.size === hiddenWords.length){
+    setTimeout(playBonusVideo, 2400);
+  }
+}
+
+// ---------- video bonus (al completar las 2 palabras ocultas) ----------
+function playBonusVideo(){
+  const overlay = document.getElementById("bonus-overlay");
+  const video = document.getElementById("bonus-video");
+  const clip = BONUS_VIDEOS[Math.floor(Math.random()*BONUS_VIDEOS.length)];
+
+  let closed = false;
+  const closeOverlay = () => {
+    if(closed) return;
+    closed = true;
+    overlay.classList.remove("show");
+    video.pause();
+  };
+
+  video.muted = true; // asegura que el navegador permita reproducirlo automáticamente
+  video.src = clip;
+  video.currentTime = 0;
+  overlay.classList.add("show");
+
+  video.onended = closeOverlay;
+  video.onerror = closeOverlay;
+  overlay.onclick = closeOverlay; // por si el jugador quiere saltarlo
+
+  const playPromise = video.play();
+  if(playPromise && playPromise.catch){
+    playPromise.catch(closeOverlay); // si el navegador bloquea la reproducción, no se queda trabado
+  }
+
+  // Respaldo: si por lo que sea nunca dispara "ended", se cierra solo a los 10s
+  setTimeout(closeOverlay, 10000);
 }
 
 // ---------- banner de definición ----------
@@ -408,6 +444,38 @@ function toggleMusic(){
 }
 document.getElementById("btn-sound").addEventListener("click", toggleMusic);
 
+// ---------- videos de historia (intro / mitad / final) ----------
+function playStoryVideo(src, onDone){
+  const overlay = document.getElementById("story-overlay");
+  const video = document.getElementById("story-video");
+  const skipBtn = document.getElementById("btn-skip-story");
+
+  let done = false;
+  const finish = () => {
+    if(done) return;
+    done = true;
+    overlay.classList.remove("show");
+    video.pause();
+    video.onended = null;
+    skipBtn.onclick = null;
+    if(onDone) onDone();
+  };
+
+  video.muted = false;
+  video.src = src;
+  video.currentTime = 0;
+  overlay.classList.add("show");
+
+  video.onended = finish;
+  video.onerror = finish;
+  skipBtn.onclick = finish;
+
+  const playPromise = video.play();
+  if(playPromise && playPromise.catch){
+    playPromise.catch(()=>{}); // si el navegador bloquea el audio, el botón de saltar sigue disponible
+  }
+}
+
 // ---------- niveles ----------
 function loadLevel(idx){
   currentLevel = idx;
@@ -426,24 +494,35 @@ function loadLevel(idx){
   renderBoard();
   renderWordList();
   playLevelMusic(idx);
+  document.getElementById("bonus-overlay").classList.remove("show");
   showScreen("screen-juego");
 }
 
 function levelComplete(){
   if(currentLevel >= LEVEL_BACKGROUNDS.length - 1){
-    document.getElementById("fin-msg").textContent =
-      `Encontraste las ${Object.keys(WORD_BANK).length} palabras electorales con una puntuación de ${score} puntos. ¡Ya conoces los conceptos clave de la democracia en Sonora!`;
-    showScreen("screen-fin");
     clearInterval(timerId);
+    playStoryVideo(STORY_FINAL_VIDEO, () => {
+      showScreen("screen-inicio");
+    });
     return;
   }
-  // Transición rápida: fundido corto y pasamos directo al siguiente nivel (sin pantalla intermedia)
-  const screenJuego = document.getElementById("screen-juego");
-  screenJuego.style.opacity = 0;
-  setTimeout(()=>{
-    loadLevel(currentLevel+1);
-    screenJuego.style.opacity = 1;
-  }, 320);
+
+  const justFinishedLevel5 = (currentLevel === 4); // idx4 = nivel 5
+
+  const goNext = () => {
+    const screenJuego = document.getElementById("screen-juego");
+    screenJuego.style.opacity = 0;
+    setTimeout(()=>{
+      loadLevel(currentLevel+1);
+      screenJuego.style.opacity = 1;
+    }, 320);
+  };
+
+  if(justFinishedLevel5){
+    playStoryVideo(STORY_MID_VIDEO, goNext);
+  } else {
+    goNext();
+  }
 }
 
 // ---------- init ----------
@@ -452,9 +531,11 @@ document.getElementById("btn-empezar").addEventListener("click", ()=>{
   score = 0; secondsElapsed = 0;
   document.getElementById("score").textContent = 0;
   attachBoardEvents();
-  playIdle();
-  startTimer();
-  loadLevel(0);
+  playStoryVideo(STORY_INTRO_VIDEO, () => {
+    playIdle();
+    startTimer();
+    loadLevel(0);
+  });
 });
 
 document.getElementById("btn-reiniciar").addEventListener("click", ()=>{
