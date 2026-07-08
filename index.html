@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sopa de Letras Electoral - IEE Sonora</title>
+<style>
+  :root{
+    --crema:#FBE9CE;
+    --crema2:#F6DDB5;
+    --naranja:#F2994A;
+    --naranja2:#EF8B2C;
+    --cafe:#5C4430;
+    --cafe2:#3E2E20;
+    --verde:#5FD068;
+    --verde2:#3FAE4B;
+    --amarillo:#FFD86B;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;font-family:'Segoe UI',Verdana,sans-serif;overflow:hidden;background:#222;}
+  #app{position:relative;width:100vw;height:100vh;overflow:hidden;}
+
+  .screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;}
+  .screen.active{display:flex;}
+
+  /* ---------- INICIO ---------- */
+  #screen-inicio{
+    background-image:url('assets/bg1.jpg');background-size:cover;background-position:center;
+  }
+  #screen-inicio .velo-inicio{position:absolute;inset:0;background:rgba(30,18,6,.12);}
+  #inicio-wrap{position:relative;z-index:2;max-width:80%;max-height:88%;}
+  #inicio-img{display:block;width:100%;height:auto;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35));}
+  #btn-empezar{
+    position:absolute;left:67%;top:60%;transform:translate(-50%,-50%);
+    font-size:1.09em;font-weight:800;color:#fff;
+    background:linear-gradient(#D9A83A,#B8841F);
+    border:2px solid #a8791f;border-radius:50px;padding:10px 36px;
+    cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.35);
+    letter-spacing:.5px;text-transform:uppercase;transition:transform .1s;display:flex;align-items:center;gap:8px;white-space:nowrap;
+  }
+  #btn-empezar:before{content:"";width:0;height:0;border-style:solid;border-width:6px 0 6px 10px;border-color:transparent transparent transparent #fff;}
+  #btn-empezar:active{transform:translate(-50%,-50%) translateY(3px);}
+
+  /* ---------- JUEGO ---------- */
+  #screen-juego{background-size:cover;background-position:center;transition:background-image .4s, opacity .3s ease;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:150px;}
+  #maincontent{position:relative;z-index:2;flex:1;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:0;}
+  #velo{position:absolute;inset:0;background:rgba(40,25,10,.28);}
+
+  #logo-img{position:absolute;z-index:3;top:16px;left:50%;transform:translateX(-50%);height:130px;object-fit:contain;filter:drop-shadow(0 3px 4px rgba(0,0,0,.5));}
+  #btn-sound{position:absolute;z-index:3;top:16px;right:16px;width:44px;height:44px;border-radius:50%;background:#fff8ea;border:3px solid var(--naranja);font-size:1.2em;cursor:pointer;box-shadow:0 4px 8px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;}
+
+  #banner{
+    position:relative;z-index:2;
+    width:min(1000px,94%);min-height:104px;margin-bottom:14px;
+    background:#fff;
+    border:3px solid var(--naranja);border-radius:16px;
+    display:flex;align-items:center;gap:18px;padding:14px 22px;
+    box-shadow:0 4px 10px rgba(0,0,0,.3);
+    opacity:0;transition:opacity .35s;
+  }
+  #banner.show{opacity:1;}
+  #banner.bonus{border-color:var(--amarillo);background:#fffbe8;}
+  #banner.bonus .texto b{color:#c9950c;}
+  #banner .icono{width:64px;height:64px;flex:0 0 auto;border-radius:50%;background:#fff;border:2px solid var(--naranja2);overflow:hidden;display:flex;align-items:center;justify-content:center;}
+  #banner .icono img{width:100%;height:100%;object-fit:contain;}
+  #banner .texto{flex:1;color:#4a2e0a;font-size:1.15em;line-height:1.32;font-weight:600;}
+  #banner .texto b{font-size:1.25em;display:block;color:var(--naranja2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
+
+  #gamearea{position:relative;z-index:2;width:100%;display:flex;align-items:flex-start;justify-content:center;gap:14px;padding:0 18px 10px;margin-top:15px;overflow:visible;}
+
+  #mascota-panel{
+    flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+    width:380px;align-self:flex-end;
+  }
+  #mascota-panel video{width:100%;object-fit:contain;filter:drop-shadow(0 8px 10px rgba(0,0,0,.35));}
+
+  #wordlist-panel{
+    background:rgba(255,244,224,.95);border:3px solid var(--naranja);border-radius:16px;
+    padding:14px 16px;min-width:210px;max-width:230px;box-shadow:0 6px 14px rgba(0,0,0,.25);
+  }
+  #wordlist-panel h3{margin:0 0 8px 0;color:var(--cafe2);font-size:1em;text-align:center;border-bottom:2px dashed var(--naranja);padding-bottom:6px;}
+  #wordlist{list-style:none;margin:0;padding:0;font-size:.92em;}
+  #wordlist li{padding:4px 2px;color:#5a4023;font-weight:700;display:flex;align-items:center;gap:6px;}
+  #wordlist li:before{content:"●";color:var(--naranja2);font-size:.7em;}
+  #wordlist li.found{color:#8a8a8a;text-decoration:line-through;opacity:.6;}
+  #wordlist li.found:before{content:"✔";color:var(--verde2);}
+
+  #board-wrap{
+    background:rgba(255,244,224,.95);border:3px solid var(--naranja);border-radius:16px;
+    padding:14px;box-shadow:0 6px 14px rgba(0,0,0,.25);
+  }
+  #board{
+    display:grid;gap:2px;user-select:none;touch-action:none;
+  }
+  .cell{
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:1em;color:#4a3316;
+    background:#fbe6c2;border-radius:4px;cursor:pointer;
+    width:var(--cellpx,34px);height:var(--cellpx,34px);transition:background .1s;
+  }
+  .cell.selected{background:var(--amarillo);}
+  .cell.found{background:var(--verde);color:#08320c;}
+  .cell.hidden-found{background:var(--amarillo);color:#4a2e0a;}
+
+  #statsbar{position:relative;z-index:2;display:flex;gap:16px;margin:10px 0 0 0;width:min(1100px,94%);justify-content:center;}
+  .stat{flex:1;justify-content:center;background:#fff8ea;border:3px solid var(--naranja);border-radius:30px;padding:8px 22px;font-weight:800;color:var(--cafe2);display:flex;align-items:center;gap:8px;box-shadow:0 4px 8px rgba(0,0,0,.2);}
+
+  /* ---------- WIN LEVEL / FIN ---------- */
+  #screen-fin{background:linear-gradient(#fceccb,#f7d9a3);}
+  .win-box{background:rgba(255,255,255,.9);border:4px solid var(--naranja);border-radius:22px;padding:34px 48px;text-align:center;box-shadow:0 10px 24px rgba(0,0,0,.3);}
+  .win-box h2{color:var(--cafe2);margin-top:0;}
+  .win-box button{margin-top:18px;font-size:1.2em;font-weight:800;color:#fff;background:linear-gradient(var(--naranja),var(--naranja2));border:3px solid #fff;border-radius:40px;padding:10px 34px;cursor:pointer;box-shadow:0 6px 0 #a85315;}
+  .win-box button:active{transform:translateY(4px);box-shadow:0 2px 0 #a85315;}
+
+  @media (max-width:900px){
+    #gamearea{flex-direction:column;align-items:center;}
+    #mascota-panel{width:130px;order:3;}
+    #wordlist-panel{min-width:150px;max-width:220px;width:90%;font-size:.85em;order:1;}
+    #board-wrap{order:2;}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- PANTALLA INICIO -->
+  <div class="screen active" id="screen-inicio">
+    <div class="velo-inicio"></div>
+    <div id="inicio-wrap">
+      <img id="inicio-img" src="assets/inicio.png" alt="Bienvenida">
+      <button id="btn-empezar">¡Jugar!</button>
+    </div>
+  </div>
+
+  <!-- PANTALLA JUEGO -->
+  <div class="screen" id="screen-juego">
+    <div id="velo"></div>
+    <img id="logo-img" src="assets/logo.png" alt="Sopa de Letras Electoral">
+    <button id="btn-sound">🔊</button>
+
+    <div id="banner">
+      <div class="icono"><img id="banner-icon" src="" alt=""></div>
+      <div class="texto"><b id="banner-title"></b><span id="banner-def"></span></div>
+    </div>
+
+    <div id="maincontent">
+      <div id="gamearea">
+        <div id="wordlist-panel">
+          <h3>Palabras a buscar</h3>
+          <ul id="wordlist"></ul>
+        </div>
+        <div id="board-wrap"><div id="board"></div></div>
+        <div id="mascota-panel">
+          <video id="mascota-video" autoplay loop muted playsinline></video>
+        </div>
+      </div>
+
+      <div id="statsbar">
+        <div class="stat">⭐ <span id="score">0</span></div>
+        <div class="stat">⏱️ <span id="tiempo">00:00</span></div>
+        <div class="stat">🧩 Nivel <span id="nivel-num">1</span>/9</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANTALLA FIN DEL JUEGO -->
+  <div class="screen" id="screen-fin">
+    <div class="win-box">
+      <h2>🎉 ¡Completaste la Sopa de Letras Electoral!</h2>
+      <p id="fin-msg"></p>
+      <button id="btn-reiniciar">Jugar de nuevo</button>
+    </div>
+  </div>
+
+</div>
+
+<script src="data.js"></script>
+<audio id="bg-music" loop></audio>
+<script src="game.js"></script>
+</body>
+</html>
