@@ -1,0 +1,25 @@
+{
+  "name": "Sopa de Letras Electoral - IEE Sonora",
+  "short_name": "Sopa Electoral",
+  "description": "Encuentra las palabras ocultas y aprende sobre la democracia, la participación ciudadana y los valores electorales, junto a Simón el Cimarrón.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#F7D9A3",
+  "theme_color": "#F2994A",
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

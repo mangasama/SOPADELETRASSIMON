@@ -2,7 +2,14 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#F2994A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="assets/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
 <title>Sopa de Letras Electoral - IEE Sonora</title>
 <style>
   :root{
@@ -146,10 +153,41 @@
   .win-box button:active{transform:translateY(4px);box-shadow:0 2px 0 #a85315;}
 
   @media (max-width:900px){
+    #logo-img{height:90px;}
+    #screen-juego{padding-top:110px;}
     #gamearea{flex-direction:column;align-items:center;}
-    #mascota-panel{width:130px;order:3;}
-    #wordlist-panel{min-width:150px;max-width:220px;width:90%;font-size:.85em;order:1;}
-    #board-wrap{order:2;}
+    #mascota-panel{width:150px;order:3;align-self:center;margin-top:8px;}
+    #wordlist-panel{min-width:150px;max-width:280px;width:90%;font-size:.9em;order:1;}
+    #board-wrap{order:2;max-width:96vw;overflow-x:auto;}
+    #banner{width:96%;font-size:.95em;}
+    #statsbar{flex-wrap:wrap;justify-content:center;width:96%;}
+    .stat{padding:6px 14px;font-size:.9em;}
+  }
+
+  @media (max-width:520px){
+    #logo-img{height:64px;top:8px;}
+    #screen-juego{padding-top:82px;}
+    #banner{min-height:auto;padding:8px 10px;gap:8px;}
+    #banner .icono{width:40px;height:40px;}
+    #banner .texto{font-size:.8em;}
+    #banner .texto b{font-size:.95em;}
+    #wordlist-panel{max-width:92vw;padding:8px 10px;}
+    #wordlist-panel h3{font-size:.9em;}
+    #wordlist{font-size:.85em;}
+    #mascota-panel{width:100px;}
+    .cell{width:var(--cellpx,22px);height:var(--cellpx,22px);font-size:.85em;}
+    #statsbar .stat{padding:5px 10px;font-size:.8em;}
+    #btn-sound{width:36px;height:36px;font-size:1em;top:8px;right:8px;}
+    #inicio-wrap{max-width:94%;}
+    #btn-empezar{font-size:.9em;padding:8px 26px;}
+    #bonus-overlay video, #story-overlay video{width:94%;}
+    #story-overlay{padding:0 10px;}
+  }
+
+  @media (orientation: landscape) and (max-height:480px){
+    #logo-img{height:56px;}
+    #screen-juego{padding-top:66px;}
+    #mascota-panel{display:none;}
   }
 </style>
 </head>
@@ -220,5 +258,14 @@
 <script src="data.js"></script>
 <audio id="bg-music" loop></audio>
 <script src="game.js"></script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js").catch((err) => {
+        console.warn("No se pudo registrar el service worker:", err);
+      });
+    });
+  }
+</script>
 </body>
 </html>

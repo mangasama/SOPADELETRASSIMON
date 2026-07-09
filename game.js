@@ -445,10 +445,14 @@ function toggleMusic(){
 document.getElementById("btn-sound").addEventListener("click", toggleMusic);
 
 // ---------- videos de historia (intro / mitad / final) ----------
-function playStoryVideo(src, onDone){
+function playStoryVideo(src, onDone, resumeMusicAfter=true){
   const overlay = document.getElementById("story-overlay");
   const video = document.getElementById("story-video");
   const skipBtn = document.getElementById("btn-skip-story");
+  const music = document.getElementById("bg-music");
+
+  const wasMusicPlaying = !music.paused;
+  music.pause();
 
   let done = false;
   const finish = () => {
@@ -458,6 +462,7 @@ function playStoryVideo(src, onDone){
     video.pause();
     video.onended = null;
     skipBtn.onclick = null;
+    if(resumeMusicAfter && musicOn && wasMusicPlaying) music.play().catch(()=>{});
     if(onDone) onDone();
   };
 
@@ -503,7 +508,7 @@ function levelComplete(){
     clearInterval(timerId);
     playStoryVideo(STORY_FINAL_VIDEO, () => {
       showScreen("screen-inicio");
-    });
+    }, false);
     return;
   }
 
@@ -543,4 +548,29 @@ document.getElementById("btn-reiniciar").addEventListener("click", ()=>{
   document.getElementById("score").textContent = 0;
   startTimer();
   loadLevel(0);
+});
+
+// ---------- ATAJOS DE PRUEBA (solo para ti, no aparecen en el juego) ----------
+// Tecla W: gana instantáneamente el nivel actual (dispara la transición normal,
+//          incluyendo el video de historia si acabas de completar el nivel 5 o el 9).
+// Teclas 1-9: salta directo a ese nivel (sin intro), para probar rápido.
+function debugWinLevel(){
+  if(!document.getElementById("screen-juego").classList.contains("active")) return;
+  levelWords.forEach(w => foundWords.add(w));
+  score += 100 * levelWords.length;
+  document.getElementById("score").textContent = score;
+  renderWordList();
+  levelComplete();
+}
+function debugGoToLevel(n){
+  score = 0; secondsElapsed = 0;
+  document.getElementById("score").textContent = 0;
+  attachBoardEvents();
+  playIdle();
+  startTimer();
+  loadLevel(n-1);
+}
+window.addEventListener("keydown", (e)=>{
+  if(e.key === "w" || e.key === "W"){ debugWinLevel(); }
+  else if(e.key >= "1" && e.key <= "9"){ debugGoToLevel(parseInt(e.key,10)); }
 });
