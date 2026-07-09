@@ -8,6 +8,20 @@
 // que también incluyen "Safari" en su user agent) para aplicar un truco de
 // CSS (mix-blend-mode) SOLO ahí, sin afectar los navegadores donde la
 // transparencia ya se ve bien.
+// El 100vh de CSS no descuenta la barra de direcciones del navegador en
+// celulares (Chrome Android, Safari, etc.), así que el contenido se corta
+// cuando esa barra está visible. Este truco clásico mide el alto REAL
+// disponible con JS y lo guarda en --vh; el CSS lo usa como calc(var(--vh)*100)
+// en vez de 100vh directo. Se recalcula si cambia el tamaño u orientación,
+// o si la barra del navegador aparece/desaparece al hacer scroll.
+function setRealViewportHeight(){
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty("--vh", vh + "px");
+}
+setRealViewportHeight();
+window.addEventListener("resize", setRealViewportHeight);
+window.addEventListener("orientationchange", ()=> setTimeout(setRealViewportHeight, 250));
+
 (function(){
   const ua = navigator.userAgent;
   const isSafari = /^((?!chrome|android|crios|fxios|edg).)*safari/i.test(ua);
