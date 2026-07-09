@@ -22,12 +22,6 @@ setRealViewportHeight();
 window.addEventListener("resize", setRealViewportHeight);
 window.addEventListener("orientationchange", ()=> setTimeout(setRealViewportHeight, 250));
 
-(function(){
-  const ua = navigator.userAgent;
-  const isSafari = /^((?!chrome|android|crios|fxios|edg).)*safari/i.test(ua);
-  if(isSafari) document.body.classList.add("safari-alpha-fallback");
-})();
-
 const ACCENTS = {"Á":"A","É":"E","Í":"I","Ó":"O","Ú":"U","Ñ":"Ñ"};
 function normalizeLetter(ch){
   ch = ch.toUpperCase();
@@ -493,21 +487,71 @@ function playSound(type){
   }
 }
 
-// ---------- mascota / video ----------
+// ---------- mascota / video con transparencia real vía canvas ----------
+// Los videos de Simón (idle/acierto) vienen "empaquetados": la mitad
+// izquierda del frame es el color normal, la mitad derecha es el canal alfa
+// (transparencia) en escala de grises. Esto evita depender de que el
+// navegador soporte transparencia nativa en WebM (Safari no la soporta,
+// aunque el archivo la tenga) — en vez de eso, la combinamos nosotros mismos
+// cuadro a cuadro en un <canvas>, lo cual funciona igual en cualquier
+// navegador y además pesa menos que un WebM con alfa nativo.
+let mascotaRAF = null;
+const mascotaMaskCanvas = document.createElement("canvas");
+const mascotaMaskCtx = mascotaMaskCanvas.getContext("2d", {willReadFrequently:true});
+
+function drawMascotaFrame(){
+  const video = document.getElementById("mascota-video-src");
+  const canvas = document.getElementById("mascota-canvas");
+  if(!video || !canvas || video.paused || video.ended){ mascotaRAF = null; return; }
+
+  const vw = video.videoWidth, vh = video.videoHeight;
+  if(!vw || !vh){ mascotaRAF = requestAnimationFrame(drawMascotaFrame); return; }
+  const halfW = vw/2;
+
+  if(mascotaMaskCanvas.width !== halfW || mascotaMaskCanvas.height !== vh){
+    mascotaMaskCanvas.width = halfW; mascotaMaskCanvas.height = vh;
+  }
+  if(canvas.width !== halfW || canvas.height !== vh){
+    canvas.width = halfW; canvas.height = vh;
+  }
+
+  // mitad izquierda = color
+  mascotaMaskCtx.drawImage(video, 0,0, halfW,vh, 0,0, halfW,vh);
+  const colorData = mascotaMaskCtx.getImageData(0,0,halfW,vh);
+  // mitad derecha = alfa (en escala de grises, usamos el canal R como valor)
+  mascotaMaskCtx.drawImage(video, halfW,0, halfW,vh, 0,0, halfW,vh);
+  const alphaData = mascotaMaskCtx.getImageData(0,0,halfW,vh);
+
+  const cd = colorData.data, ad = alphaData.data;
+  for(let i=0;i<cd.length;i+=4){
+    cd[i+3] = ad[i];
+  }
+
+  const outCtx = canvas.getContext("2d");
+  outCtx.putImageData(colorData, 0, 0);
+
+  mascotaRAF = requestAnimationFrame(drawMascotaFrame);
+}
+
+function startMascotaDrawLoop(){
+  if(mascotaRAF) cancelAnimationFrame(mascotaRAF);
+  mascotaRAF = requestAnimationFrame(drawMascotaFrame);
+}
+
 function playIdle(){
-  const v = document.getElementById("mascota-video");
+  const v = document.getElementById("mascota-video-src");
   if(!v) return;
   if(v.getAttribute("src") !== IDLE_VIDEO) v.src = IDLE_VIDEO;
   v.loop = true;
-  v.play().catch(()=>{});
+  v.play().then(startMascotaDrawLoop).catch(()=>{});
 }
 function playAcierto(){
   const clip = ACIERTO_VIDEOS[Math.floor(Math.random()*ACIERTO_VIDEOS.length)];
-  const v = document.getElementById("mascota-video");
+  const v = document.getElementById("mascota-video-src");
   if(!v) return;
   v.src = clip;
   v.loop = false;
-  v.play().catch(()=>{});
+  v.play().then(startMascotaDrawLoop).catch(()=>{});
   v.onended = () => playIdle();
 }
 

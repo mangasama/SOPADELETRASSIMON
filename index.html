@@ -112,11 +112,7 @@
     flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
     width:460px;align-self:flex-end;
   }
-  #mascota-panel video{width:100%;height:auto;max-height:100%;object-fit:contain;filter:drop-shadow(0 8px 10px rgba(0,0,0,.35));}
-  /* Safari no respeta la transparencia alfa de WebM (se ve fondo negro sólido);
-     este truco de blend-mode la disimula. Solo se aplica ahí vía JS (ver game.js),
-     para no alterar los colores en navegadores donde la transparencia ya funciona. */
-  body.safari-alpha-fallback #mascota-panel video{mix-blend-mode:screen;}
+  #mascota-panel canvas{width:100%;height:auto;max-height:100%;object-fit:contain;filter:drop-shadow(0 8px 10px rgba(0,0,0,.35));display:block;}
 
   #wordlist-panel{
     background:rgba(255,244,224,.95);border:3px solid var(--naranja);border-radius:16px;
@@ -252,7 +248,8 @@
 
     #mascota-panel{grid-area:mascota;width:100%;max-width:none;align-self:stretch;justify-self:stretch;overflow:hidden;}
 
-    #statsbar{grid-area:statsbar;flex-direction:column;width:100%;margin:6px 0 0 0;gap:4px;}
+    #statsbar{grid-area:statsbar;flex-direction:column;justify-content:flex-start;width:100%;margin:6px 0 0 0;gap:4px;}
+    #statsbar .stat{flex:0 0 auto;}
     #statsbar .stat{width:100%;padding:4px 8px;font-size:.7em;}
 
     #logo-img{height:40px;}
@@ -310,7 +307,8 @@
         </div>
         <div id="board-wrap"><div id="board-box"><div id="board"></div></div></div>
         <div id="mascota-panel">
-          <video id="mascota-video" autoplay loop muted playsinline></video>
+          <video id="mascota-video-src" style="display:none" muted playsinline webkit-playsinline></video>
+          <canvas id="mascota-canvas"></canvas>
         </div>
       </div>
 
