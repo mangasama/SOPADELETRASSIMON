@@ -2,6 +2,18 @@
 // SOPA DE LETRAS ELECTORAL - motor del juego
 // ==========================================================
 
+// Safari (a diferencia de Chrome/Firefox) no respeta el canal alfa de los
+// videos WebM: la mascota se ve con un recuadro negro sólido detrás en vez
+// de transparente. Detectamos Safari específicamente (no Chrome/Firefox/Edge,
+// que también incluyen "Safari" en su user agent) para aplicar un truco de
+// CSS (mix-blend-mode) SOLO ahí, sin afectar los navegadores donde la
+// transparencia ya se ve bien.
+(function(){
+  const ua = navigator.userAgent;
+  const isSafari = /^((?!chrome|android|crios|fxios|edg).)*safari/i.test(ua);
+  if(isSafari) document.body.classList.add("safari-alpha-fallback");
+})();
+
 const ACCENTS = {"Á":"A","É":"E","Í":"I","Ó":"O","Ú":"U","Ñ":"Ñ"};
 function normalizeLetter(ch){
   ch = ch.toUpperCase();
@@ -153,8 +165,16 @@ function renderBoard(){
 // vacíos y el conjunto queda agrupado y centrado.
 // El ALTO se mide directo de #board-wrap (que sí se estira en vertical
 // vía align-self:stretch para dar una referencia de alto confiable).
+// Detecta el modo "layout móvil" (boceto de celular): activo cuando el
+// dispositivo está en horizontal con una relación de aspecto más alargada
+// que 16:9, igual que el media query de CSS que arma la cuadrícula.
+function isMobileLayout(){
+  return window.matchMedia("(orientation: landscape) and (min-aspect-ratio: 179/100)").matches;
+}
+
 function fitBoardToContainer(){
   const gamearea = document.getElementById("gamearea");
+  const maincontent = document.getElementById("maincontent");
   const wrap = document.getElementById("board-wrap");
   const box = document.getElementById("board-box");
   const board = document.getElementById("board");
@@ -162,9 +182,14 @@ function fitBoardToContainer(){
   const mascotaPanel = document.getElementById("mascota-panel");
   if(!gamearea || !wrap || !box || !board || gridSize === 0) return;
 
-  const gaCs = getComputedStyle(gamearea);
-  const gaPadX = parseFloat(gaCs.paddingLeft) + parseFloat(gaCs.paddingRight);
-  const gap = parseFloat(gaCs.columnGap || gaCs.gap) || 0;
+  // En el layout móvil, #gamearea es display:contents (no tiene caja propia),
+  // así que medimos desde #maincontent, que es quien arma el grid real.
+  const usingGridLayout = getComputedStyle(gamearea).display === "contents";
+  const container = usingGridLayout ? maincontent : gamearea;
+
+  const contCs = getComputedStyle(container);
+  const contPadX = parseFloat(contCs.paddingLeft) + parseFloat(contCs.paddingRight);
+  const gap = parseFloat(contCs.columnGap || contCs.gap) || 0;
 
   const wordlistW = wordlistPanel ? wordlistPanel.getBoundingClientRect().width : 0;
   const mascotaVisible = mascotaPanel && getComputedStyle(mascotaPanel).display !== "none";
@@ -175,7 +200,7 @@ function fitBoardToContainer(){
   const boxPadX = parseFloat(boxCs.paddingLeft) + parseFloat(boxCs.paddingRight) + parseFloat(boxCs.borderLeftWidth) + parseFloat(boxCs.borderRightWidth);
   const boxPadY = parseFloat(boxCs.paddingTop) + parseFloat(boxCs.paddingBottom) + parseFloat(boxCs.borderTopWidth) + parseFloat(boxCs.borderBottomWidth);
 
-  const availW = gamearea.clientWidth - gaPadX - wordlistW - mascotaW - (gap*numGaps) - boxPadX;
+  const availW = container.clientWidth - contPadX - wordlistW - mascotaW - (gap*numGaps) - boxPadX;
   const availH = wrap.clientHeight - boxPadY;
   if(availW <= 0 || availH <= 0) return;
 
@@ -184,7 +209,9 @@ function fitBoardToContainer(){
   const cellH = Math.floor((availH - (gridSize-1)*cellGap) / gridSize);
   let cellPx = Math.min(cellW, cellH);
   cellPx = Math.max(cellPx, 10);  // nunca tan chico que sea ilegible/inclicable
-  cellPx = Math.min(cellPx, 42);  // no crecer de más en pantallas muy grandes
+  // En el layout móvil (boceto celular) topamos el tamaño más abajo para que
+  // las letras no se vean tan atascadas/grandes dentro de su celda.
+  cellPx = Math.min(cellPx, isMobileLayout() ? 30 : 42);
 
   board.style.setProperty("--cellpx", cellPx + "px");
 }

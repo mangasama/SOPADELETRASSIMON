@@ -25,7 +25,7 @@
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;height:100%;font-family:'Segoe UI',Verdana,sans-serif;overflow:hidden;background:#222;}
-  #app{position:relative;width:100vw;height:100vh;overflow:hidden;}
+  #app{position:relative;width:100vw;height:100vh;height:100dvh;overflow:hidden;}
 
   .screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;}
   .screen.active{display:flex;}
@@ -113,6 +113,10 @@
     width:460px;align-self:flex-end;
   }
   #mascota-panel video{width:100%;height:auto;max-height:100%;object-fit:contain;filter:drop-shadow(0 8px 10px rgba(0,0,0,.35));}
+  /* Safari no respeta la transparencia alfa de WebM (se ve fondo negro sólido);
+     este truco de blend-mode la disimula. Solo se aplica ahí vía JS (ver game.js),
+     para no alterar los colores en navegadores donde la transparencia ya funciona. */
+  body.safari-alpha-fallback #mascota-panel video{mix-blend-mode:screen;}
 
   #wordlist-panel{
     background:rgba(255,244,224,.95);border:3px solid var(--naranja);border-radius:16px;
