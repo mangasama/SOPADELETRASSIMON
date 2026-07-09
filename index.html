@@ -210,6 +210,50 @@
     #btn-empezar{font-size:.9em;padding:8px 26px;}
   }
 
+  /* ---------- LAYOUT MÓVIL (boceto): activa solo en celulares reales ----------
+     Un celular acostado tiene una relación de aspecto más "alargada" que 16:9
+     (ej. 19.5:9, 20:9), mientras que monitores/laptops rondan 16:9 o menos.
+     Usamos eso como corte para no tocar la vista de PC/tablet, que ya quedó
+     perfecta. #gamearea pasa a display:contents para que sus hijos
+     (wordlist-panel, board-wrap, mascota-panel) se vuelvan celdas directas
+     del grid de #maincontent, junto con #banner y #statsbar. */
+  @media (orientation:landscape) and (min-aspect-ratio: 179/100){
+    #maincontent{
+      display:grid;
+      grid-template-columns: minmax(120px,180px) auto minmax(115px,190px);
+      grid-template-rows: auto 1fr;
+      grid-template-areas:
+        "wordlist board banner"
+        "statsbar board mascota";
+      column-gap:8px;row-gap:6px;
+      padding:0 10px 8px;align-items:stretch;justify-content:center;
+    }
+    #gamearea{display:contents;}
+
+    #banner{grid-area:banner;width:100%;min-height:auto;max-height:230px;overflow-y:auto;margin:0;padding:8px 10px;gap:6px;}
+    #banner .icono{width:30px;height:30px;}
+    #banner .texto{font-size:.62em;line-height:1.2;}
+    #banner .texto b{font-size:.88em;margin-bottom:0;}
+
+    #wordlist-panel{grid-area:wordlist;width:100%;min-width:0;max-width:none;align-self:stretch;padding:8px 10px;}
+    #wordlist-panel h3{font-size:.82em;margin-bottom:4px;padding-bottom:4px;}
+    #wordlist{font-size:.76em;}
+    #wordlist li{padding:2px 0;}
+
+    #board-wrap{grid-area:board;height:100%;}
+    #board-box{padding:8px;}
+    .cell{font-size:calc(var(--cellpx,30px) * .46);}
+
+    #mascota-panel{grid-area:mascota;width:100%;max-width:none;align-self:stretch;justify-self:stretch;}
+
+    #statsbar{grid-area:statsbar;flex-direction:column;width:100%;margin:6px 0 0 0;gap:4px;}
+    #statsbar .stat{width:100%;padding:4px 8px;font-size:.7em;}
+
+    #logo-img{height:40px;}
+    #screen-juego{padding-top:44px;}
+    #btn-sound{width:32px;height:32px;font-size:.9em;top:6px;right:6px;}
+  }
+
   /* ---------- FORZAR HORIZONTAL ---------- */
   #rotate-overlay{
     display:none;position:fixed;inset:0;z-index:9999;
@@ -247,12 +291,12 @@
     <img id="logo-img" src="assets/logo.png" alt="Sopa de Letras Electoral">
     <button id="btn-sound">🔊</button>
 
-    <div id="banner">
-      <div class="icono"><img id="banner-icon" src="" alt=""></div>
-      <div class="texto"><b id="banner-title"></b><span id="banner-def"></span></div>
-    </div>
-
     <div id="maincontent">
+      <div id="banner">
+        <div class="icono"><img id="banner-icon" src="" alt=""></div>
+        <div class="texto"><b id="banner-title"></b><span id="banner-def"></span></div>
+      </div>
+
       <div id="gamearea">
         <div id="wordlist-panel">
           <h3>Palabras a buscar</h3>
