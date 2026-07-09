@@ -106,17 +106,18 @@
   #banner .texto{flex:1;color:#4a2e0a;font-size:1.15em;line-height:1.32;font-weight:600;}
   #banner .texto b{font-size:1.25em;display:block;color:var(--naranja2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
 
-  #gamearea{position:relative;z-index:2;width:100%;display:flex;align-items:flex-start;justify-content:center;gap:14px;padding:0 18px 10px;margin-top:15px;overflow:visible;}
+  #gamearea{position:relative;z-index:2;width:100%;display:flex;align-items:stretch;justify-content:center;gap:10px;padding:0 18px 10px;margin-top:15px;flex:1 1 auto;min-height:0;overflow:visible;}
 
   #mascota-panel{
     flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
-    width:380px;align-self:flex-end;
+    width:460px;align-self:flex-end;
   }
-  #mascota-panel video{width:100%;object-fit:contain;filter:drop-shadow(0 8px 10px rgba(0,0,0,.35));}
+  #mascota-panel video{width:100%;height:auto;max-height:100%;object-fit:contain;filter:drop-shadow(0 8px 10px rgba(0,0,0,.35));}
 
   #wordlist-panel{
     background:rgba(255,244,224,.95);border:3px solid var(--naranja);border-radius:16px;
     padding:14px 16px;min-width:210px;max-width:230px;box-shadow:0 6px 14px rgba(0,0,0,.25);
+    align-self:flex-start;max-height:100%;overflow:auto;
   }
   #wordlist-panel h3{margin:0 0 8px 0;color:var(--cafe2);font-size:1em;text-align:center;border-bottom:2px dashed var(--naranja);padding-bottom:6px;}
   #wordlist{list-style:none;margin:0;padding:0;font-size:.92em;}
@@ -126,8 +127,13 @@
   #wordlist li.found:before{content:"✔";color:var(--verde2);}
 
   #board-wrap{
+    flex:0 1 auto;min-width:0;min-height:0;align-self:stretch;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+  }
+  #board-box{
     background:rgba(255,244,224,.95);border:3px solid var(--naranja);border-radius:16px;
     padding:14px;box-shadow:0 6px 14px rgba(0,0,0,.25);
+    display:inline-flex;max-width:100%;max-height:100%;
   }
   #board{
     display:grid;gap:2px;user-select:none;touch-action:none;
@@ -152,42 +158,74 @@
   .win-box button{margin-top:18px;font-size:1.2em;font-weight:800;color:#fff;background:linear-gradient(var(--naranja),var(--naranja2));border:3px solid #fff;border-radius:40px;padding:10px 34px;cursor:pointer;box-shadow:0 6px 0 #a85315;}
   .win-box button:active{transform:translateY(4px);box-shadow:0 2px 0 #a85315;}
 
-  @media (max-width:900px){
-    #logo-img{height:90px;}
-    #screen-juego{padding-top:110px;}
-    #gamearea{flex-direction:column;align-items:center;}
-    #mascota-panel{width:150px;order:3;align-self:center;margin-top:8px;}
-    #wordlist-panel{min-width:150px;max-width:280px;width:90%;font-size:.9em;order:1;}
-    #board-wrap{order:2;max-width:96vw;overflow-x:auto;}
-    #banner{width:96%;font-size:.95em;}
-    #statsbar{flex-wrap:wrap;justify-content:center;width:96%;}
-    .stat{padding:6px 14px;font-size:.9em;}
-  }
+  /* Estos breakpoints ahora se basan en ALTO disponible (no ancho), porque
+     el juego siempre se juega en horizontal: el ancho de un celular acostado
+     ronda 700-900px, pero el alto es lo que escasea (350-430px típico).
+     El tamaño de celda del tablero se calcula dinámicamente por JS
+     (fitBoardToContainer en game.js), así que aquí solo ajustamos textos,
+     paddings y qué elementos mostrar/ocultar según el espacio. */
 
-  @media (max-width:520px){
-    #logo-img{height:64px;top:8px;}
-    #screen-juego{padding-top:82px;}
-    #banner{min-height:auto;padding:8px 10px;gap:8px;}
-    #banner .icono{width:40px;height:40px;}
-    #banner .texto{font-size:.8em;}
-    #banner .texto b{font-size:.95em;}
-    #wordlist-panel{max-width:92vw;padding:8px 10px;}
-    #wordlist-panel h3{font-size:.9em;}
-    #wordlist{font-size:.85em;}
-    #mascota-panel{width:100px;}
-    .cell{width:var(--cellpx,22px);height:var(--cellpx,22px);font-size:.85em;}
-    #statsbar .stat{padding:5px 10px;font-size:.8em;}
-    #btn-sound{width:36px;height:36px;font-size:1em;top:8px;right:8px;}
-    #inicio-wrap{max-width:94%;}
-    #btn-empezar{font-size:.9em;padding:8px 26px;}
-    #bonus-overlay video, #story-overlay video{width:94%;}
-    #story-overlay{padding:0 10px;}
+  @media (max-height:600px){
+    #logo-img{height:90px;}
+    #screen-juego{padding-top:96px;}
+    #banner{width:min(760px,92%);font-size:.95em;min-height:auto;padding:10px 18px;}
+    #statsbar{flex-wrap:wrap;justify-content:center;width:92%;margin-top:6px;}
+    .stat{padding:6px 14px;font-size:.9em;}
+    #wordlist-panel{min-width:170px;max-width:200px;font-size:.85em;padding:10px 12px;}
+    #mascota-panel{width:280px;}
+    #gamearea{gap:10px;margin-top:8px;}
   }
 
   @media (orientation: landscape) and (max-height:480px){
-    #logo-img{height:56px;}
-    #screen-juego{padding-top:66px;}
-    #mascota-panel{display:none;}
+    #logo-img{height:44px;}
+    #screen-juego{padding-top:48px;}
+    #mascota-panel{width:145px;}
+    #banner{min-height:auto;padding:6px 12px;gap:8px;width:min(600px,94%);margin-bottom:6px;}
+    #banner .icono{width:34px;height:34px;}
+    #banner .texto{font-size:.72em;line-height:1.15;}
+    #banner .texto b{font-size:.9em;margin-bottom:0;}
+    #gamearea{margin-top:6px;}
+    #wordlist-panel{min-width:140px;max-width:170px;padding:8px 10px;}
+    #wordlist-panel h3{font-size:.85em;margin-bottom:4px;padding-bottom:4px;}
+    #wordlist{font-size:.78em;}
+    #wordlist li{padding:2px 0;}
+    #board-box{padding:8px;}
+    #statsbar{margin-top:4px;}
+    #statsbar .stat{padding:4px 10px;font-size:.78em;}
+    #btn-sound{width:34px;height:34px;font-size:.95em;top:6px;right:6px;}
+  }
+
+  @media (orientation: landscape) and (max-height:360px){
+    #logo-img{height:32px;}
+    #screen-juego{padding-top:34px;}
+    #mascota-panel{width:95px;}
+    #banner{padding:4px 10px;gap:6px;}
+    #banner .icono{width:26px;height:26px;}
+    #banner .texto{font-size:.64em;}
+    #banner .texto b{font-size:.85em;}
+  }
+
+  @media (orientation:portrait), (max-width:340px){
+    #inicio-wrap{max-width:94%;}
+    #btn-empezar{font-size:.9em;padding:8px 26px;}
+  }
+
+  /* ---------- FORZAR HORIZONTAL ---------- */
+  #rotate-overlay{
+    display:none;position:fixed;inset:0;z-index:9999;
+    background:linear-gradient(#3E2E20,#5C4430);
+    align-items:center;justify-content:center;flex-direction:column;gap:18px;
+    text-align:center;padding:0 30px;color:#FBE9CE;
+  }
+  #rotate-overlay .icono-rotar{font-size:4.2em;animation:girar 1.6s ease-in-out infinite;display:inline-block;}
+  #rotate-overlay p{font-size:1.15em;font-weight:700;margin:0;max-width:320px;line-height:1.4;}
+  @keyframes girar{
+    0%,100%{transform:rotate(0deg);}
+    50%{transform:rotate(90deg);}
+  }
+  @media (orientation:portrait){
+    #rotate-overlay{display:flex;}
+    #app{display:none;}
   }
 </style>
 </head>
@@ -220,7 +258,7 @@
           <h3>Palabras a buscar</h3>
           <ul id="wordlist"></ul>
         </div>
-        <div id="board-wrap"><div id="board"></div></div>
+        <div id="board-wrap"><div id="board-box"><div id="board"></div></div></div>
         <div id="mascota-panel">
           <video id="mascota-video" autoplay loop muted playsinline></video>
         </div>
@@ -253,6 +291,12 @@
     <button id="btn-skip-story">Saltar ➜</button>
   </div>
 
+</div>
+
+<!-- OVERLAY: forzar horizontal -->
+<div id="rotate-overlay">
+  <span class="icono-rotar">📱</span>
+  <p>Gira tu dispositivo para jugar<br>Sopa de Letras Electoral</p>
 </div>
 
 <script src="data.js"></script>

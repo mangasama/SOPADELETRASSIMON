@@ -128,9 +128,8 @@ function placeWord(g,word){
 function renderBoard(){
   const board = document.getElementById("board");
   board.innerHTML = "";
-  board.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
-  const cellPx = gridSize <= 12 ? 34 : gridSize <= 16 ? 28 : 22;
-  board.style.setProperty("--cellpx", cellPx+"px");
+  board.style.gridTemplateColumns = `repeat(${gridSize}, var(--cellpx, 30px))`;
+  board.style.gridTemplateRows = `repeat(${gridSize}, var(--cellpx, 30px))`;
   for(let r=0;r<gridSize;r++){
     for(let c=0;c<gridSize;c++){
       const cell = document.createElement("div");
@@ -141,7 +140,65 @@ function renderBoard(){
       board.appendChild(cell);
     }
   }
+  fitBoardToContainer();
+  requestAnimationFrame(fitBoardToContainer); // por si el layout aún no se asienta del todo
 }
+
+// Calcula el tamaño de celda más grande que quepa completo (ancho Y alto)
+// dentro del espacio real disponible, para que el tablero NUNCA se corte
+// ni necesite scroll, sin importar el tamaño de pantalla ni cuántas
+// palabras/tamaño de grid tenga el nivel.
+// El ANCHO se calcula restando lo que ocupan sus vecinos (lista de palabras
+// y mascota) al ancho total de #gamearea, así el tablero no deja huecos
+// vacíos y el conjunto queda agrupado y centrado.
+// El ALTO se mide directo de #board-wrap (que sí se estira en vertical
+// vía align-self:stretch para dar una referencia de alto confiable).
+function fitBoardToContainer(){
+  const gamearea = document.getElementById("gamearea");
+  const wrap = document.getElementById("board-wrap");
+  const box = document.getElementById("board-box");
+  const board = document.getElementById("board");
+  const wordlistPanel = document.getElementById("wordlist-panel");
+  const mascotaPanel = document.getElementById("mascota-panel");
+  if(!gamearea || !wrap || !box || !board || gridSize === 0) return;
+
+  const gaCs = getComputedStyle(gamearea);
+  const gaPadX = parseFloat(gaCs.paddingLeft) + parseFloat(gaCs.paddingRight);
+  const gap = parseFloat(gaCs.columnGap || gaCs.gap) || 0;
+
+  const wordlistW = wordlistPanel ? wordlistPanel.getBoundingClientRect().width : 0;
+  const mascotaVisible = mascotaPanel && getComputedStyle(mascotaPanel).display !== "none";
+  const mascotaW = mascotaVisible ? mascotaPanel.getBoundingClientRect().width : 0;
+  const numGaps = mascotaVisible ? 2 : 1; // gaps entre los paneles presentes
+
+  const boxCs = getComputedStyle(box);
+  const boxPadX = parseFloat(boxCs.paddingLeft) + parseFloat(boxCs.paddingRight) + parseFloat(boxCs.borderLeftWidth) + parseFloat(boxCs.borderRightWidth);
+  const boxPadY = parseFloat(boxCs.paddingTop) + parseFloat(boxCs.paddingBottom) + parseFloat(boxCs.borderTopWidth) + parseFloat(boxCs.borderBottomWidth);
+
+  const availW = gamearea.clientWidth - gaPadX - wordlistW - mascotaW - (gap*numGaps) - boxPadX;
+  const availH = wrap.clientHeight - boxPadY;
+  if(availW <= 0 || availH <= 0) return;
+
+  const cellGap = 2; // debe coincidir con el gap del CSS de #board
+  const cellW = Math.floor((availW - (gridSize-1)*cellGap) / gridSize);
+  const cellH = Math.floor((availH - (gridSize-1)*cellGap) / gridSize);
+  let cellPx = Math.min(cellW, cellH);
+  cellPx = Math.max(cellPx, 10);  // nunca tan chico que sea ilegible/inclicable
+  cellPx = Math.min(cellPx, 42);  // no crecer de más en pantallas muy grandes
+
+  board.style.setProperty("--cellpx", cellPx + "px");
+}
+
+// Reajusta el tamaño de celda al cambiar tamaño de ventana u orientación,
+// sin reconstruir el tablero (para no perder el progreso del jugador).
+let fitRAF = null;
+window.addEventListener("resize", ()=>{
+  if(fitRAF) cancelAnimationFrame(fitRAF);
+  fitRAF = requestAnimationFrame(fitBoardToContainer);
+});
+window.addEventListener("orientationchange", ()=>{
+  setTimeout(fitBoardToContainer, 250);
+});
 
 function renderWordList(){
   const ul = document.getElementById("wordlist");
@@ -496,11 +553,16 @@ function loadLevel(idx){
   document.getElementById("screen-juego").style.backgroundImage = `url('${bg}')`;
   document.getElementById("nivel-num").textContent = idx+1;
 
+  // Mostramos la pantalla ANTES de renderizar el tablero: así, cuando
+  // fitBoardToContainer mida el espacio disponible, el contenedor ya está
+  // visible y con su tamaño real (si se mide oculto, da 0 y el tablero
+  // usa un tamaño de respaldo que puede no caber en pantallas chicas).
+  showScreen("screen-juego");
+
   renderBoard();
   renderWordList();
   playLevelMusic(idx);
   document.getElementById("bonus-overlay").classList.remove("show");
-  showScreen("screen-juego");
 }
 
 function levelComplete(){
