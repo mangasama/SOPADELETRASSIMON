@@ -245,7 +245,45 @@ function renderWordList(){
     if(foundWords.has(w)) li.classList.add("found");
     ul.appendChild(li);
   });
+  requestAnimationFrame(updateWordlistScrollButtons);
 }
+
+// Botones de flecha para subir/bajar la lista de palabras sin necesidad de
+// arrastrar con el dedo (el gesto de scroll es incómodo en pantallas chicas).
+function updateWordlistScrollButtons(){
+  const panel = document.getElementById("wordlist-panel");
+  const btnUp = document.getElementById("wl-scroll-up");
+  const btnDown = document.getElementById("wl-scroll-down");
+  if(!panel || !btnUp || !btnDown) return;
+  const hasOverflow = panel.scrollHeight - panel.clientHeight > 4;
+  if(!hasOverflow){
+    btnUp.classList.remove("show");
+    btnDown.classList.remove("show");
+    return;
+  }
+  const atTop = panel.scrollTop <= 2;
+  const atBottom = panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 2;
+  btnUp.classList.toggle("show", !atTop);
+  btnDown.classList.toggle("show", !atBottom);
+}
+
+(function setupWordlistScrollButtons(){
+  const panel = document.getElementById("wordlist-panel");
+  const btnUp = document.getElementById("wl-scroll-up");
+  const btnDown = document.getElementById("wl-scroll-down");
+  if(!panel || !btnUp || !btnDown) return;
+  const STEP = 70; // px por click, ~2-3 palabras
+  btnUp.addEventListener("click", ()=>{
+    panel.scrollBy({top:-STEP, behavior:"smooth"});
+    setTimeout(updateWordlistScrollButtons, 250);
+  });
+  btnDown.addEventListener("click", ()=>{
+    panel.scrollBy({top:STEP, behavior:"smooth"});
+    setTimeout(updateWordlistScrollButtons, 250);
+  });
+  panel.addEventListener("scroll", updateWordlistScrollButtons);
+  window.addEventListener("resize", ()=> requestAnimationFrame(updateWordlistScrollButtons));
+})();
 
 // ---------- selección de celdas ----------
 function cellAt(r,c){

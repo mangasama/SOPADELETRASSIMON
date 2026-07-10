@@ -78,6 +78,16 @@
     #banner .texto{font-size:.9em;}
   }
 
+  /* Igual que arriba pero por ANCHO: en ventanas de escritorio angostas
+     (ej. Surface Duo, ~720px), la lista de palabras y la mascota se
+     achican un poco para dejarle más espacio al tablero. */
+  @media (max-width:900px){
+    #wordlist-panel{min-width:130px;max-width:170px;padding:10px 12px;}
+    #wordlist-panel h3{font-size:.9em;}
+    #wordlist{font-size:.85em;}
+    #mascota-panel{max-width:260px;}
+  }
+
   #bonus-overlay{
     position:absolute;z-index:5;inset:0;display:none;
     align-items:center;justify-content:center;
@@ -124,11 +134,23 @@
   #mascota-panel canvas{width:auto;height:auto;max-width:100%;max-height:100%;aspect-ratio:1/1;object-fit:contain;filter:drop-shadow(0 8px 10px rgba(0,0,0,.35));display:block;}
 
   #wordlist-panel{
+    position:relative;
     background:rgba(255,244,224,.95);border:3px solid var(--naranja);border-radius:16px;
-    padding:14px 16px;min-width:210px;max-width:230px;box-shadow:0 6px 14px rgba(0,0,0,.25);
+    padding:14px 16px;min-width:160px;max-width:230px;box-shadow:0 6px 14px rgba(0,0,0,.25);
     align-self:center;max-height:100%;overflow:auto;
   }
   #wordlist-panel h3{margin:0 0 8px 0;color:var(--cafe2);font-size:1em;text-align:center;border-bottom:2px dashed var(--naranja);padding-bottom:6px;}
+
+  .wl-scroll-btn{
+    display:none;position:absolute;right:6px;width:26px;height:24px;
+    border-radius:6px;border:1px solid var(--naranja);background:#fff;
+    color:var(--naranja2);font-size:.7em;line-height:1;cursor:pointer;
+    align-items:center;justify-content:center;z-index:4;
+    box-shadow:0 2px 4px rgba(0,0,0,.2);
+  }
+  .wl-scroll-btn.show{display:flex;}
+  #wl-scroll-up{top:6px;}
+  #wl-scroll-down{bottom:6px;}
   #wordlist{list-style:none;margin:0;padding:0;font-size:.92em;}
   #wordlist li{padding:4px 2px;color:#5a4023;font-weight:700;display:flex;align-items:center;gap:6px;}
   #wordlist li:before{content:"●";color:var(--naranja2);font-size:.7em;}
@@ -149,7 +171,7 @@
   }
   .cell{
     display:flex;align-items:center;justify-content:center;
-    font-weight:800;font-size:1em;color:#4a3316;
+    font-weight:800;font-size:calc(var(--cellpx,34px) * .46);color:#4a3316;
     background:#fbe6c2;border-radius:4px;cursor:pointer;
     width:var(--cellpx,34px);height:var(--cellpx,34px);transition:background .1s;
   }
@@ -271,6 +293,8 @@
         <div id="wordlist-panel">
           <h3>Palabras a buscar</h3>
           <ul id="wordlist"></ul>
+          <button id="wl-scroll-up" class="wl-scroll-btn" aria-label="Ver palabras anteriores">▲</button>
+          <button id="wl-scroll-down" class="wl-scroll-btn" aria-label="Ver más palabras">▼</button>
         </div>
         <div id="board-wrap"><div id="board-box"><div id="board"></div></div></div>
         <div id="mascota-panel">
