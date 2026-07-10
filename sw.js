@@ -3,7 +3,7 @@
 // para el HTML/JS/manifest para que las actualizaciones se vean de inmediato
 // (los assets pesados sí quedan en caché-primero para que carguen rápido offline).
 
-const CACHE_NAME = "sopa-electoral-v2"; // <-- subir este número cada vez que se actualice el juego
+const CACHE_NAME = "sopa-electoral-v3"; // <-- subir este número cada vez que se actualice el juego
 
 const CORE_FILES = [
   "./",
@@ -113,11 +113,12 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const url = event.request.url;
 
-  // HTML/JS/manifest: red primero (así las actualizaciones se ven de inmediato).
-  // Si no hay internet, cae al caché como respaldo.
+  // HTML/JS/manifest: red primero de verdad (cache:"no-store" evita que el
+  // propio caché HTTP del navegador devuelva una copia vieja por debajo).
+  // Si no hay internet, cae al caché del service worker como respaldo.
   if (event.request.mode === "navigate" || isCoreFile(url)) {
     event.respondWith(
-      fetch(event.request)
+      fetch(event.request, { cache: "no-store" })
         .then((response) => {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
