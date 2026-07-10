@@ -256,15 +256,8 @@ function updateWordlistScrollButtons(){
   const btnDown = document.getElementById("wl-scroll-down");
   if(!panel || !btnUp || !btnDown) return;
   const hasOverflow = panel.scrollHeight - panel.clientHeight > 4;
-  if(!hasOverflow){
-    btnUp.classList.remove("show");
-    btnDown.classList.remove("show");
-    return;
-  }
-  const atTop = panel.scrollTop <= 2;
-  const atBottom = panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 2;
-  btnUp.classList.toggle("show", !atTop);
-  btnDown.classList.toggle("show", !atBottom);
+  btnUp.classList.toggle("show", hasOverflow);
+  btnDown.classList.toggle("show", hasOverflow);
 }
 
 (function setupWordlistScrollButtons(){
