@@ -109,8 +109,8 @@
   #gamearea{position:relative;z-index:2;width:100%;display:flex;align-items:stretch;justify-content:center;gap:10px;padding:0 18px 10px;margin-top:15px;flex:1 1 auto;min-height:0;overflow:visible;}
 
   #mascota-panel{
-    flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
-    width:460px;align-self:flex-end;
+    flex:0 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+    width:auto;max-width:380px;align-self:stretch;
   }
   #mascota-panel canvas{width:auto;height:auto;max-width:100%;max-height:100%;aspect-ratio:1/1;object-fit:contain;filter:drop-shadow(0 8px 10px rgba(0,0,0,.35));display:block;}
 
@@ -178,7 +178,7 @@
   @media (orientation:landscape) and (max-height:600px) and (min-aspect-ratio:175/100) and (hover:none) and (pointer:coarse){
     #maincontent{
       display:grid;
-      grid-template-columns: minmax(110px,170px) minmax(140px,auto) minmax(130px,220px);
+      grid-template-columns: minmax(100px,150px) minmax(140px,auto) minmax(120px,190px);
       grid-template-rows: min(180px,52%) minmax(120px,1fr);
       grid-template-areas:
         "wordlist board banner"
@@ -200,7 +200,7 @@
     #wordlist{font-size:.76em;}
     #wordlist li{padding:2px 0;}
 
-    #board-wrap{grid-area:board;height:100%;}
+    #board-wrap{grid-area:board;height:100%;align-items:flex-end;}
     #board-box{padding:8px;}
     .cell{font-size:calc(var(--cellpx,30px) * .46);}
 
