@@ -177,7 +177,7 @@ function renderBoard(){
 // dispositivo está en horizontal con una relación de aspecto más alargada
 // que 16:9, igual que el media query de CSS que arma la cuadrícula.
 function isMobileLayout(){
-  return window.matchMedia("(orientation: landscape) and (min-aspect-ratio: 179/100)").matches;
+  return window.matchMedia("(orientation: landscape) and (max-height:600px) and (hover:none) and (pointer:coarse)").matches;
 }
 
 function fitBoardToContainer(){

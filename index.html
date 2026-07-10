@@ -158,55 +158,10 @@
   .win-box button{margin-top:18px;font-size:1.2em;font-weight:800;color:#fff;background:linear-gradient(var(--naranja),var(--naranja2));border:3px solid #fff;border-radius:40px;padding:10px 34px;cursor:pointer;box-shadow:0 6px 0 #a85315;}
   .win-box button:active{transform:translateY(4px);box-shadow:0 2px 0 #a85315;}
 
-  /* Estos breakpoints ahora se basan en ALTO disponible (no ancho), porque
-     el juego siempre se juega en horizontal: el ancho de un celular acostado
-     ronda 700-900px, pero el alto es lo que escasea (350-430px típico).
-     El tamaño de celda del tablero se calcula dinámicamente por JS
-     (fitBoardToContainer en game.js), así que aquí solo ajustamos textos,
-     paddings y qué elementos mostrar/ocultar según el espacio.
-     IMPORTANTE: (hover:none) and (pointer:coarse) asegura que esto SOLO
-     aplique en dispositivos táctiles reales (celular/tablet), nunca en una
-     ventana de PC que por casualidad no esté muy alta. */
-
-  @media (max-height:600px) and (hover:none) and (pointer:coarse){
-    #logo-img{height:90px;}
-    #screen-juego{padding-top:96px;}
-    #banner{width:min(760px,92%);font-size:.95em;min-height:auto;padding:10px 18px;}
-    #statsbar{flex-wrap:wrap;justify-content:center;width:92%;margin-top:6px;}
-    .stat{padding:6px 14px;font-size:.9em;}
-    #wordlist-panel{min-width:170px;max-width:200px;font-size:.85em;padding:10px 12px;}
-    #mascota-panel{width:280px;}
-    #gamearea{gap:10px;margin-top:8px;}
-  }
-
-  @media (orientation: landscape) and (max-height:480px) and (hover:none) and (pointer:coarse){
-    #logo-img{height:44px;}
-    #screen-juego{padding-top:48px;}
-    #mascota-panel{width:145px;}
-    #banner{min-height:auto;padding:6px 12px;gap:8px;width:min(600px,94%);margin-bottom:6px;}
-    #banner .icono{width:34px;height:34px;}
-    #banner .texto{font-size:.72em;line-height:1.15;}
-    #banner .texto b{font-size:.9em;margin-bottom:0;}
-    #gamearea{margin-top:6px;}
-    #wordlist-panel{min-width:140px;max-width:170px;padding:8px 10px;}
-    #wordlist-panel h3{font-size:.85em;margin-bottom:4px;padding-bottom:4px;}
-    #wordlist{font-size:.78em;}
-    #wordlist li{padding:2px 0;}
-    #board-box{padding:8px;}
-    #statsbar{margin-top:4px;}
-    #statsbar .stat{padding:4px 10px;font-size:.78em;}
-    #btn-sound{width:34px;height:34px;font-size:.95em;top:6px;right:6px;}
-  }
-
-  @media (orientation: landscape) and (max-height:360px) and (hover:none) and (pointer:coarse){
-    #logo-img{height:32px;}
-    #screen-juego{padding-top:34px;}
-    #mascota-panel{width:95px;}
-    #banner{padding:4px 10px;gap:6px;}
-    #banner .icono{width:26px;height:26px;}
-    #banner .texto{font-size:.64em;}
-    #banner .texto b{font-size:.85em;}
-  }
+  /* NOTA: los breakpoints de compactación para celular (antes definidos aquí
+     con max-height:600/480/360) fueron reemplazados por el layout en grid
+     de abajo, que cubre ese mismo rango de alturas con un diseño mejor
+     pensado (columnas en vez de apachurrar todo en una fila). */
 
   @media (orientation:portrait), (max-width:340px){
     #inicio-wrap{max-width:94%;}
@@ -220,7 +175,7 @@
      perfecta. #gamearea pasa a display:contents para que sus hijos
      (wordlist-panel, board-wrap, mascota-panel) se vuelvan celdas directas
      del grid de #maincontent, junto con #banner y #statsbar. */
-  @media (orientation:landscape) and (min-aspect-ratio: 179/100) and (hover:none) and (pointer:coarse){
+  @media (orientation:landscape) and (max-height:600px) and (hover:none) and (pointer:coarse){
     #maincontent{
       display:grid;
       grid-template-columns: minmax(110px,170px) auto minmax(90px,150px);
@@ -235,12 +190,12 @@
 
     /* Sin tope de altura: crecen a su tamaño real (la fila 1 se ajusta sola).
        Lo que sobre de alto lo absorbe la mascota (fila 2), que puede achicarse. */
-    #banner{grid-area:banner;width:100%;min-height:auto;max-height:none;overflow:visible;margin:0;padding:8px 10px;gap:6px;}
+    #banner{grid-area:banner;width:100%;min-height:auto;max-height:none;overflow:visible;margin:0;padding:8px 10px;gap:6px;align-self:start;}
     #banner .icono{width:30px;height:30px;}
     #banner .texto{font-size:.62em;line-height:1.2;}
     #banner .texto b{font-size:.88em;margin-bottom:0;}
 
-    #wordlist-panel{grid-area:wordlist;width:100%;min-width:0;max-width:none;max-height:none;overflow:visible;align-self:stretch;padding:8px 10px;}
+    #wordlist-panel{grid-area:wordlist;width:100%;min-width:0;max-width:none;max-height:260px;overflow-y:auto;align-self:start;padding:8px 10px;}
     #wordlist-panel h3{font-size:.82em;margin-bottom:4px;padding-bottom:4px;}
     #wordlist{font-size:.76em;}
     #wordlist li{padding:2px 0;}
