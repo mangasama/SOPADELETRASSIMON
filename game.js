@@ -278,7 +278,53 @@ function updateWordlistScrollButtons(){
   window.addEventListener("resize", ()=> requestAnimationFrame(updateWordlistScrollButtons));
 })();
 
-// ---------- selección de celdas ----------
+// ---------- modo zoom del tablero (doble tap/clic) ----------
+(function setupBoardZoom(){
+  const board = document.getElementById("board");
+  if(!board) return;
+  const HINT_KEY = "sopa_zoom_hint_visto";
+
+  function toggleZoom(){
+    document.body.classList.toggle("board-zoom");
+    // el espacio disponible cambió por completo: recalcular el tablero
+    requestAnimationFrame(()=>{
+      fitBoardToContainer();
+      requestAnimationFrame(fitBoardToContainer);
+    });
+  }
+
+  function showHintOnce(){
+    if(localStorage.getItem(HINT_KEY)) return;
+    const hint = document.getElementById("zoom-hint");
+    if(!hint) return;
+    hint.classList.add("show");
+    setTimeout(()=> hint.classList.remove("show"), 3500);
+    localStorage.setItem(HINT_KEY, "1");
+  }
+
+  // Doble clic (mouse, PC)
+  board.addEventListener("dblclick", (e)=>{
+    e.preventDefault();
+    toggleZoom();
+  });
+
+  // Doble tap (touch): detectamos dos "touchend" seguidos en poco tiempo,
+  // ya que "dblclick" no siempre es confiable en navegadores móviles.
+  let lastTap = 0;
+  board.addEventListener("touchend", (e)=>{
+    const now = Date.now();
+    if(now - lastTap < 350){
+      e.preventDefault();
+      toggleZoom();
+      lastTap = 0;
+    } else {
+      lastTap = now;
+    }
+  });
+
+  // Mostrar el avisito la primera vez que arranca un nivel
+  showHintOnce();
+})();
 function cellAt(r,c){
   return document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
 }

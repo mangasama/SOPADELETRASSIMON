@@ -50,6 +50,37 @@
 
   /* ---------- JUEGO ---------- */
   #screen-juego{background-size:cover;background-position:center;transition:background-image .4s, opacity .3s ease;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:150px;}
+
+  /* ---------- MODO ZOOM DEL TABLERO ----------
+     Doble tap/clic en el tablero oculta todo lo demás (lista, mascota,
+     definición, puntaje, logo) y lo deja ocupando casi toda la pantalla.
+     Doble tap/clic otra vez regresa al layout normal. */
+  body.board-zoom #logo-img,
+  body.board-zoom #wordlist-panel,
+  body.board-zoom #mascota-panel,
+  body.board-zoom #statsbar,
+  body.board-zoom .wl-scroll-btn{
+    display:none !important;
+  }
+  /* La definición SÍ se sigue mostrando en modo zoom, pero como una
+     notificación flotante encima del tablero (no le quita espacio). */
+  body.board-zoom #banner{
+    position:fixed !important;top:14px;left:50%;transform:translateX(-50%);
+    width:min(92%,520px) !important;margin:0 !important;z-index:60;
+    max-height:none !important;
+  }
+  body.board-zoom #screen-juego{padding-top:10px !important;}
+  body.board-zoom #maincontent{display:flex !important;align-items:center;justify-content:center;padding:0 !important;}
+  body.board-zoom #gamearea{display:flex !important;width:100%;height:100%;padding:0 !important;margin:0 !important;}
+  body.board-zoom #board-wrap{width:100%;height:100%;}
+
+  #zoom-hint{
+    position:fixed;left:50%;bottom:26px;transform:translateX(-50%);
+    background:rgba(30,18,6,.85);color:#fff;padding:10px 18px;border-radius:20px;
+    font-size:.9em;font-weight:600;z-index:50;opacity:0;pointer-events:none;
+    transition:opacity .4s;white-space:nowrap;
+  }
+  #zoom-hint.show{opacity:1;}
   #maincontent{position:relative;z-index:2;flex:1;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:0;}
   #velo{position:absolute;inset:0;background:rgba(40,25,10,.28);}
 
@@ -267,6 +298,7 @@
 </head>
 <body>
 <div id="app">
+<div id="zoom-hint">👆👆 Doble toque para agrandar/regresar el tablero</div>
 
   <!-- PANTALLA INICIO -->
   <div class="screen active" id="screen-inicio">
