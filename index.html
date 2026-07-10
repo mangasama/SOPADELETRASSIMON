@@ -175,11 +175,11 @@
      perfecta. #gamearea pasa a display:contents para que sus hijos
      (wordlist-panel, board-wrap, mascota-panel) se vuelvan celdas directas
      del grid de #maincontent, junto con #banner y #statsbar. */
-  @media (orientation:landscape) and (max-height:600px) and (hover:none) and (pointer:coarse){
+  @media (orientation:landscape) and (max-height:600px) and (min-aspect-ratio:175/100) and (hover:none) and (pointer:coarse){
     #maincontent{
       display:grid;
       grid-template-columns: minmax(110px,170px) minmax(140px,auto) minmax(130px,220px);
-      grid-template-rows: auto minmax(145px,1fr);
+      grid-template-rows: min(180px,52%) minmax(120px,1fr);
       grid-template-areas:
         "wordlist board banner"
         "statsbar board mascota";
@@ -190,12 +190,12 @@
 
     /* Sin tope de altura: crecen a su tamaño real (la fila 1 se ajusta sola).
        Lo que sobre de alto lo absorbe la mascota (fila 2), que puede achicarse. */
-    #banner{grid-area:banner;width:100%;min-height:auto;max-height:none;overflow:visible;margin:0;padding:8px 10px;gap:6px;align-self:start;}
+    #banner{grid-area:banner;width:100%;min-height:auto;max-height:none;overflow-y:auto;margin:0;padding:8px 10px;gap:6px;align-self:stretch;}
     #banner .icono{width:30px;height:30px;}
     #banner .texto{font-size:.62em;line-height:1.2;}
     #banner .texto b{font-size:.88em;margin-bottom:0;}
 
-    #wordlist-panel{grid-area:wordlist;width:100%;min-width:0;max-width:none;max-height:260px;overflow-y:auto;align-self:start;padding:8px 10px;}
+    #wordlist-panel{grid-area:wordlist;width:100%;min-width:0;max-width:none;max-height:260px;overflow-y:auto;align-self:stretch;padding:8px 10px;}
     #wordlist-panel h3{font-size:.82em;margin-bottom:4px;padding-bottom:4px;}
     #wordlist{font-size:.76em;}
     #wordlist li{padding:2px 0;}
